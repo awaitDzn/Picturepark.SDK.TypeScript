@@ -28,9 +28,6 @@ To improve the final app file distrubution size, you should only import used mod
 - **PictureparkSchemaPermissionSetModule**
   - SchemaPermissionSetService
   - [AccessTokenAuthService](auth/AccessTokenAuthService.md)
-- **PictureparkPublicAccessModule**
-  - PublicAccessService
-  - [AccessTokenAuthService](auth/AccessTokenAuthService.md)
 - **PictureparkShareModule**
   - ShareService
   - [AccessTokenAuthService](auth/AccessTokenAuthService.md)
@@ -44,7 +41,6 @@ To improve the final app file distrubution size, you should only import used mod
 ## PictureparkUiModule
 
 - **PictureparkUserModule**
-- **PictureparkPublicAccessModule**
 - **PictureparkContentModule**
 - [LoginComponent](pp-login.md)
 - [LogoutComponent](pp-logout.md)

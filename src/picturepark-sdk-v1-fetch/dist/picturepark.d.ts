@@ -356,8 +356,14 @@ declare module "picturepark" {
          * Get info
          * @return CustomerInfo
          */
-        get(): Promise<CustomerInfo>;
-        protected processGet(response: Response): Promise<CustomerInfo>;
+        getInfo(): Promise<CustomerInfo>;
+        protected processGetInfo(response: Response): Promise<CustomerInfo>;
+        /**
+         * Get Version
+         * @return VersionInfo
+         */
+        getVersion(): Promise<VersionInfo>;
+        protected processGetVersion(response: Response): Promise<VersionInfo>;
     }
     export class JsonSchemaClient extends PictureparkClientBase {
         private http;
@@ -521,6 +527,13 @@ declare module "picturepark" {
          */
         search(liveStreamSearchRequest: LiveStreamSearchRequest): Promise<ObjectSearchResult>;
         protected processSearch(response: Response): Promise<ObjectSearchResult>;
+        /**
+         * This endpoint cannot be used. It is kept to generate LiveStream message contracts
+         * @return OK
+         * @deprecated
+         */
+        getMessage(): Promise<LiveStreamMessage>;
+        protected processGetMessage(response: Response): Promise<LiveStreamMessage>;
     }
     export class OutputClient extends PictureparkClientBase {
         private http;
@@ -563,27 +576,6 @@ declare module "picturepark" {
          */
         update(updateRequest: UserProfileUpdateRequest): Promise<UserProfile>;
         protected processUpdate(response: Response): Promise<UserProfile>;
-    }
-    export class PublicAccessClient extends PictureparkClientBase {
-        private http;
-        private baseUrl;
-        protected jsonParseReviver: ((key: string, value: any) => any) | undefined;
-        constructor(configuration: AuthClient, baseUrl?: string, http?: {
-            fetch(url: RequestInfo, init?: RequestInit): Promise<Response>;
-        });
-        /**
-         * Get Version
-         * @return VersionInfo
-         */
-        getVersion(): Promise<VersionInfo>;
-        protected processGetVersion(response: Response): Promise<VersionInfo>;
-        /**
-         * Get Share
-         * @param token The token
-         * @return ShareBaseDetail
-         */
-        getShare(token: string): Promise<ShareDetail>;
-        protected processGetShare(response: Response): Promise<ShareDetail>;
     }
     export class SchemaClient extends PictureparkClientBase {
         private http;
@@ -709,54 +701,6 @@ declare module "picturepark" {
         updateConfiguration(serviceProviderId: string, configuration: ServiceProviderConfigurationUpdateRequest): Promise<CustomerServiceProviderConfiguration>;
         protected processUpdateConfiguration(response: Response): Promise<CustomerServiceProviderConfiguration>;
     }
-    export class ShareAccessClient extends PictureparkClientBase {
-        private http;
-        private baseUrl;
-        protected jsonParseReviver: ((key: string, value: any) => any) | undefined;
-        constructor(configuration: AuthClient, baseUrl?: string, http?: {
-            fetch(url: RequestInfo, init?: RequestInit): Promise<Response>;
-        });
-        /**
-         * Get Share json
-         * @param token The token
-         * @return ShareDetail
-         */
-        getShareJson(token: string): Promise<any>;
-        protected processGetShareJson(response: Response): Promise<any>;
-        /**
-         * Download Shared outputs
-         * @param token The token
-         * @param width (optional) Optional width in pixels to resize image
-         * @param height (optional) Optional height in pixels to resize image
-         * @param range (optional) The range of bytes to download (http range header): bytes={from}-{to} (e.g. bytes=0-100000)
-         * @return HttpResponseMessage
-         */
-        download(token: string, width?: number | null | undefined, height?: number | null | undefined, range?: string | null | undefined): Promise<FileResponse>;
-        protected processDownload(response: Response): Promise<FileResponse>;
-        /**
-         * Download Shared outputs
-         * @param token The token
-         * @param contentId The content id
-         * @param width (optional) Optional width in pixels to resize image
-         * @param height (optional) Optional height in pixels to resize image
-         * @param range (optional) The range of bytes to download (http range header): bytes={from}-{to} (e.g. bytes=0-100000)
-         * @return HttpResponseMessage
-         */
-        downloadWithContentId(token: string, contentId: string, width?: number | null | undefined, height?: number | null | undefined, range?: string | null | undefined): Promise<FileResponse>;
-        protected processDownloadWithContentId(response: Response): Promise<FileResponse>;
-        /**
-         * Download Shared outputs
-         * @param token The token
-         * @param contentId The content id
-         * @param outputFormatId The output format id+
-         * @param width (optional) Optional width in pixels to resize image
-         * @param height (optional) Optional height in pixels to resize image
-         * @param range (optional) The range of bytes to download (http range header): bytes={from}-{to} (e.g. bytes=0-100000)
-         * @return HttpResponseMessage
-         */
-        downloadWithOutputFormatId(token: string, contentId: string, outputFormatId: string, width?: number | null | undefined, height?: number | null | undefined, range?: string | null | undefined): Promise<FileResponse>;
-        protected processDownloadWithOutputFormatId(response: Response): Promise<FileResponse>;
-    }
     export class ShareClient extends PictureparkClientBase {
         private http;
         private baseUrl;
@@ -807,6 +751,46 @@ declare module "picturepark" {
          */
         deleteMany(deleteManyRequest: ShareDeleteManyRequest): Promise<BulkResponse>;
         protected processDeleteMany(response: Response): Promise<BulkResponse>;
+        /**
+         * Get Share json
+         * @param token The token
+         * @return ShareDetail
+         */
+        getShareJson(token: string): Promise<any>;
+        protected processGetShareJson(response: Response): Promise<any>;
+        /**
+         * Download Shared outputs
+         * @param token The token
+         * @param width (optional) Optional width in pixels to resize image
+         * @param height (optional) Optional height in pixels to resize image
+         * @param range (optional) The range of bytes to download (http range header): bytes={from}-{to} (e.g. bytes=0-100000)
+         * @return HttpResponseMessage
+         */
+        download(token: string, width?: number | null | undefined, height?: number | null | undefined, range?: string | null | undefined): Promise<FileResponse>;
+        protected processDownload(response: Response): Promise<FileResponse>;
+        /**
+         * Download Shared outputs
+         * @param token The token
+         * @param contentId The content id
+         * @param width (optional) Optional width in pixels to resize image
+         * @param height (optional) Optional height in pixels to resize image
+         * @param range (optional) The range of bytes to download (http range header): bytes={from}-{to} (e.g. bytes=0-100000)
+         * @return HttpResponseMessage
+         */
+        downloadWithContentId(token: string, contentId: string, width?: number | null | undefined, height?: number | null | undefined, range?: string | null | undefined): Promise<FileResponse>;
+        protected processDownloadWithContentId(response: Response): Promise<FileResponse>;
+        /**
+         * Download Shared outputs
+         * @param token The token
+         * @param contentId The content id
+         * @param outputFormatId The output format id+
+         * @param width (optional) Optional width in pixels to resize image
+         * @param height (optional) Optional height in pixels to resize image
+         * @param range (optional) The range of bytes to download (http range header): bytes={from}-{to} (e.g. bytes=0-100000)
+         * @return HttpResponseMessage
+         */
+        downloadWithOutputFormatId(token: string, contentId: string, outputFormatId: string, width?: number | null | undefined, height?: number | null | undefined, range?: string | null | undefined): Promise<FileResponse>;
+        protected processDownloadWithOutputFormatId(response: Response): Promise<FileResponse>;
     }
     export class TransferClient extends PictureparkClientBase {
         private http;
@@ -915,70 +899,97 @@ declare module "picturepark" {
             fetch(url: RequestInfo, init?: RequestInit): Promise<Response>;
         });
         /**
-         * Create a new user (without inviting him)
+         * Create user
+         * @param request Requested user information.
+         * @return Newly created user
          */
         create(request: UserCreateRequest): Promise<UserDetail>;
         protected processCreate(response: Response): Promise<UserDetail>;
         /**
-         * Get by id
-         * @param userId The user id
-         * @return UserDetail
+         * Get user
+         * @param userId User ID to search for.
+         * @return Requested user details
          */
         get(userId: string): Promise<UserDetail>;
         protected processGet(response: Response): Promise<UserDetail>;
         /**
-         * Updates one or more users
+         * Update user
+         * @param userId User ID to action on.
+         * @param request New user information.
+         * @return User details after the update of the user
          */
-        update(userId: string, userUpdatableDetail: UserUpdateRequest): Promise<UserDetail>;
+        update(userId: string, request: UserUpdateRequest): Promise<UserDetail>;
         protected processUpdate(response: Response): Promise<UserDetail>;
         /**
-         * Search for users
-         * @param searchRequest The user search request
-         * @return UserSearchResult
+         * Search users
+         * @param searchRequest User search request.
+         * @return Result of the user search
          */
         search(searchRequest: UserSearchRequest): Promise<UserSearchResult>;
         protected processSearch(response: Response): Promise<UserSearchResult>;
         /**
-         * Get by owner token
-         * @param tokenId The token id
-         * @return UserDetail
+         * Get user by owner token
+         * @param tokenId ID of the owner token.
+         * @return User details of the user referenced by the owner token
          */
         getByOwnerToken(tokenId: string): Promise<UserDetail>;
         protected processGetByOwnerToken(response: Response): Promise<UserDetail>;
         /**
-         * Get multiple user details by supplying their ID's
-         * @param ids The user ID's
-         * @return IEnumerable&lt;UserDetail&gt;
+         * Get multiple users
+         * @param ids User IDs.
+         * @return Details of all the users who were found
          */
         getMany(ids: string[] | null): Promise<UserDetail[]>;
         protected processGetMany(response: Response): Promise<UserDetail[]>;
         /**
-         * Searches and aggregates users by different attributes
+         * Aggregate users
+         * @param request User aggregation request.
+         * @return Aggregation based on the request
          */
-        aggregate(userAggregationRequest: UserAggregationRequest): Promise<ObjectAggregationResult>;
+        aggregate(request: UserAggregationRequest): Promise<ObjectAggregationResult>;
         protected processAggregate(response: Response): Promise<ObjectAggregationResult>;
         /**
-         * Locks or unlocks one or more users
+         * Lock / unlock user
+         * @param userId User ID to action on.
+         * @param request Request detailing if the user should be locked or unlocked.
+         * @return OK
          */
-        lock(userId: string, userLockRequest: UserLockRequest): Promise<void>;
+        lock(userId: string, request: UserLockRequest): Promise<void>;
         protected processLock(response: Response): Promise<void>;
         /**
-         * Sets one or more users as reviewed or under review
+         * Change user's review state
+         * @param userId User ID to action on.
+         * @param request Request detailing if the user should be set as _reviewed_ or _to be reviewed_.
+         * @return OK
          */
-        review(userId: string, userReviewRequest: UserReviewRequest): Promise<void>;
+        review(userId: string, request: UserReviewRequest): Promise<void>;
         protected processReview(response: Response): Promise<void>;
         /**
-         * Invites (or creates) new users
+         * Invite user
+         * @param userId User ID to action on.
+         * @return OK
          */
         invite(userId: string): Promise<void>;
         protected processInvite(response: Response): Promise<void>;
         /**
-         * Deletes a user
+         * Reinvite user
+         * @param userId User ID to action on.
+         * @return OK
          */
-        delete(userId: string, userDeactivateRequest: UserDeleteRequest): Promise<void>;
+        reinvite(userId: string): Promise<void>;
+        protected processReinvite(response: Response): Promise<void>;
+        /**
+         * Delete user
+         * @param userId User ID to action on.
+         * @param request Request with details regarding the deletion.
+         * @return OK
+         */
+        delete(userId: string, request: UserDeleteRequest): Promise<void>;
         protected processDelete(response: Response): Promise<void>;
         /**
-         * Restores a previously deleted user
+         * Restore user
+         * @param userId User ID to action on.
+         * @return OK
          */
         restore(userId: string): Promise<void>;
         protected processRestore(response: Response): Promise<void>;
@@ -991,192 +1002,53 @@ declare module "picturepark" {
             fetch(url: RequestInfo, init?: RequestInit): Promise<Response>;
         });
         /**
-         * Get all roles
-         * @return UserDetail
+         * Get all user roles
+         * @return List of all the user roles in the system
          */
         getAll(): Promise<UserRole[]>;
         protected processGetAll(response: Response): Promise<UserRole[]>;
         /**
-         * Create a new user role
-         * @param request Create request
+         * Create user role
+         * @param request User role creation request.
+         * @return Newly created user role
          */
         create(request: UserRoleCreateRequest): Promise<UserRole>;
         protected processCreate(response: Response): Promise<UserRole>;
         /**
-         * Get by id
-         * @param userRoleId The user role id
-         * @return UserDetail
+         * Get user role
+         * @param userRoleId The user role ID
+         * @return User role or null if not found
          */
         get(userRoleId: string): Promise<UserRole>;
         protected processGet(response: Response): Promise<UserRole>;
         /**
-         * Search for user roles
-         * @param searchRequest The user role search request
-         * @return UserRoleSearchResult
+         * Search user roles
+         * @param searchRequest User role search request.
+         * @return Result of the user role search
          */
         search(searchRequest: UserRoleSearchRequest): Promise<UserRoleSearchResult>;
         protected processSearch(response: Response): Promise<UserRoleSearchResult>;
         /**
-         * Create multiple new user roles
-         * @param request Create request
+         * Create multiple user roles
+         * @param request Multiple user role creation request.
+         * @return Bulk response
          */
         createMany(request: UserRoleCreateManyRequest): Promise<BulkResponse>;
         protected processCreateMany(response: Response): Promise<BulkResponse>;
         /**
          * Update multiple user roles
-         * @param request Update request
+         * @param request Multiple user role update request.
+         * @return Bulk response
          */
         updateMany(request: UserRoleUpdateManyRequest): Promise<BulkResponse>;
         protected processUpdateMany(response: Response): Promise<BulkResponse>;
         /**
-         * Deletes multiple user roles
-         * @param request Delete request
+         * Delete multiple user roles
+         * @param request Multiple user role deletion request.
+         * @return Bulk request
          */
         deleteMany(request: UserRoleDeleteManyRequest): Promise<BulkResponse>;
         protected processDeleteMany(response: Response): Promise<BulkResponse>;
-    }
-    export interface BusinessProcessSearchRequest {
-        /** Defines the offset from the first result you want to fetch. Defaults to 0. */
-        start: number;
-        /** Limits the document count of the result set. Defaults to 30. */
-        limit: number;
-        filter?: FilterBase | undefined;
-        searchString?: string | undefined;
-        searchBehaviours?: SearchBehaviour[] | undefined;
-    }
-    /** The FilterBase is the base class for all filters. */
-    export interface FilterBase {
-    }
-    /** The AndFilter&gt; is a compound filter and returns documents that match all of the specified filters. */
-    export interface AndFilter extends FilterBase {
-        /** Accepts all filters. */
-        filters?: FilterBase[] | undefined;
-    }
-    /** The OrFilter is a compound filter and returns documents that match any of the specified filters. */
-    export interface OrFilter extends FilterBase {
-        /** Accepts all filters. */
-        filters?: FilterBase[] | undefined;
-    }
-    /** The NotFilter is a compound filter and returns documents that do not match the specified filter. */
-    export interface NotFilter extends FilterBase {
-        /** Limits the result set. */
-        filter?: FilterBase | undefined;
-    }
-    /** The DateRangeFilter returns documents with fields that have date values within a certain range. */
-    export interface DateRangeFilter extends FilterBase {
-        /** The elastic search index field to execute the filter on. */
-        field?: string | undefined;
-        /** The date range. Supported pattern: now(+-)(int)(YMDHm). */
-        range?: DateRange | undefined;
-    }
-    /** The date range class used in aggregators and filters. */
-    export interface DateRange {
-        /** Tranlsated range names. */
-        names?: TranslatedStringDictionary | undefined;
-        /** The from value can be a datetime string or a pattern now(+-)(int)(YMDHm). */
-        from?: string | undefined;
-        /** The to value can be a datetime string or a pattern now(+-)(int)(YMDHm). */
-        to?: string | undefined;
-    }
-    /** A custom dictionary type to distinguish language specific class properties. */
-    export interface TranslatedStringDictionary {
-        [key: string]: string | any;
-    }
-    /** The ExistsFilter returns documents that have at least one non-null value in the original field. */
-    export interface ExistsFilter extends FilterBase {
-        /** The elastic search index field to execute the filter on. */
-        field?: string | undefined;
-    }
-    /** The GeoBoundingBoxFilter returns documents that are found based on a point location using a bounding box. */
-    export interface GeoBoundingBoxFilter extends FilterBase {
-        /** The elastic search index field to execute the filter on. */
-        field?: string | undefined;
-        /** The top left longitude/latitude configuration. */
-        topLeft?: GeoLocation | undefined;
-        /** The bottom right longitude/latitude configuration. */
-        bottomRight?: GeoLocation | undefined;
-    }
-    export interface GeoLocation {
-        lat: number;
-        lon: number;
-    }
-    /** The GeoDistanceFilter returns documents that include only hits that exists within a specific distance from a geo point. */
-    export interface GeoDistanceFilter extends FilterBase {
-        /** The elastic search index field to execute the filter on. */
-        field?: string | undefined;
-        /** The longitude/latitude configuration for the point of origin. */
-        location?: GeoLocation | undefined;
-        /** The range distance in meters. */
-        distance: number;
-    }
-    /** The NestedFilter is a joining filter and returns documents whose nested objects / documents (see nested mapping) match the specified filter. */
-    export interface NestedFilter extends FilterBase {
-        /** The path pointing to the nested object. */
-        path?: string | undefined;
-        /** Limits the result set. */
-        filter?: FilterBase | undefined;
-    }
-    /** The NumericRangeFilter returns documents with fields that have numeric values within a certain range. */
-    export interface NumericRangeFilter extends FilterBase {
-        /** The elastic search index field to execute the filter on. */
-        field?: string | undefined;
-        /** The numeric range with from and to properties. */
-        range?: NumericRange | undefined;
-    }
-    export interface NumericRange {
-        /** Tranlsated range names. */
-        names?: TranslatedStringDictionary | undefined;
-        /** The from value. */
-        from?: number | undefined;
-        /** The to value. */
-        to?: number | undefined;
-    }
-    /** The PrefixFilter returns documents that have fields containing terms with a specified prefix (not analyzed). */
-    export interface PrefixFilter extends FilterBase {
-        /** The elastic search index field to execute the filter on. */
-        field?: string | undefined;
-        /** The prefix term to filter on. */
-        prefix?: string | undefined;
-    }
-    /** The TermFilter returns documents that contain the exact term specified in the inverted index. */
-    export interface TermFilter extends FilterBase {
-        /** The elastic search index field to execute the filter on. */
-        field?: string | undefined;
-        /** The term to filter on. */
-        term?: string | undefined;
-    }
-    /** The TermsFilter returns documents that have fields that match any of the provided terms (not analyzed). */
-    export interface TermsFilter extends FilterBase {
-        /** The elastic search index field to execute the filter on. */
-        field?: string | undefined;
-        /** A list of OR combined terms. */
-        terms?: string[] | undefined;
-    }
-    /** An AggregationFilter is provided with each aggregated value. When selecting the aggregated value the aggregation filter is added to the search query and returns doucments meeting the aggregation condition. */
-    export interface AggregationFilter extends FilterBase {
-        /** The name of the aggregation this filter is connected to. */
-        aggregationName?: string | undefined;
-        /** The aggregation filter property. Available filters are TermFilter, DateRangeFilter, NumericRangeFilter, GeoDistanceFilter and NestedFilter. */
-        filter?: FilterBase | undefined;
-        temporaryAggregatorRequestId?: string | undefined;
-    }
-    /** The ChildFilter allows to apply filters on child documents and returns documents that match the specified filter on the child document. */
-    export interface ChildFilter extends FilterBase {
-        /** The elastic search index type to filter as a child. */
-        childType?: string | undefined;
-        /** The filter to apply on the child entity. It accepts all filters. */
-        filter?: FilterBase | undefined;
-    }
-    /** The ParentFilter allows to apply filters on parent documents and returns documents that match the specified filter on the parent document. */
-    export interface ParentFilter extends FilterBase {
-        /** The elastic search index type to filter as a parent. */
-        parentType?: string | undefined;
-        /** The filter to apply on the child entity. It accepts all filters. */
-        filter?: FilterBase | undefined;
-    }
-    export enum SearchBehaviour {
-        DropInvalidCharactersOnFailure,
-        WildcardOnSingleTerm
     }
     export interface BaseResultOfBusinessProcess {
         totalResults: number;
@@ -1293,6 +1165,8 @@ declare module "picturepark" {
     export interface UserInactiveOrDeletedException extends PictureparkForbiddenException {
     }
     export interface TermsOfServiceNotNewestException extends PictureparkBusinessException {
+    }
+    export interface UnableToReinviteNotInvitedUserException extends PictureparkValidationException {
     }
     export interface RenderingException extends PictureparkBusinessException {
     }
@@ -1880,8 +1754,10 @@ declare module "picturepark" {
         Model3d,
         ContentItem
     }
-    export interface BusinessProcessWaitTimeoutException extends PictureparkTimeoutException {
-        businessProcessId?: string | undefined;
+    export interface ContentBackupFailedException extends PictureparkBusinessException {
+        contentId?: string | undefined;
+        outputFormatId?: string | undefined;
+        outputId?: string | undefined;
     }
     export interface BusinessProcessEngineRequestException extends PictureparkBusinessException {
         businessProcessId?: string | undefined;
@@ -1950,6 +1826,149 @@ declare module "picturepark" {
         businessProcessId?: string | undefined;
         expected?: BusinessProcessLifeCycle[] | undefined;
         actual: BusinessProcessLifeCycle;
+    }
+    export interface BusinessProcessSearchRequest {
+        /** Defines the offset from the first result you want to fetch. Defaults to 0. */
+        start: number;
+        /** Limits the document count of the result set. Defaults to 30. */
+        limit: number;
+        filter?: FilterBase | undefined;
+        searchString?: string | undefined;
+        searchBehaviours?: SearchBehaviour[] | undefined;
+    }
+    /** The FilterBase is the base class for all filters. */
+    export interface FilterBase {
+    }
+    /** The AndFilter&gt; is a compound filter and returns documents that match all of the specified filters. */
+    export interface AndFilter extends FilterBase {
+        /** Accepts all filters. */
+        filters?: FilterBase[] | undefined;
+    }
+    /** The OrFilter is a compound filter and returns documents that match any of the specified filters. */
+    export interface OrFilter extends FilterBase {
+        /** Accepts all filters. */
+        filters?: FilterBase[] | undefined;
+    }
+    /** The NotFilter is a compound filter and returns documents that do not match the specified filter. */
+    export interface NotFilter extends FilterBase {
+        /** Limits the result set. */
+        filter?: FilterBase | undefined;
+    }
+    /** The DateRangeFilter returns documents with fields that have date values within a certain range. */
+    export interface DateRangeFilter extends FilterBase {
+        /** The elastic search index field to execute the filter on. */
+        field?: string | undefined;
+        /** The date range. Supported pattern: now(+-)(int)(YMDHm). */
+        range?: DateRange | undefined;
+    }
+    /** The date range class used in aggregators and filters. */
+    export interface DateRange {
+        /** Tranlsated range names. */
+        names?: TranslatedStringDictionary | undefined;
+        /** The from value can be a datetime string or a pattern now(+-)(int)(YMDHm). */
+        from?: string | undefined;
+        /** The to value can be a datetime string or a pattern now(+-)(int)(YMDHm). */
+        to?: string | undefined;
+    }
+    /** A custom dictionary type to distinguish language specific class properties. */
+    export interface TranslatedStringDictionary {
+        [key: string]: string | any;
+    }
+    /** The ExistsFilter returns documents that have at least one non-null value in the original field. */
+    export interface ExistsFilter extends FilterBase {
+        /** The elastic search index field to execute the filter on. */
+        field?: string | undefined;
+    }
+    /** The GeoBoundingBoxFilter returns documents that are found based on a point location using a bounding box. */
+    export interface GeoBoundingBoxFilter extends FilterBase {
+        /** The elastic search index field to execute the filter on. */
+        field?: string | undefined;
+        /** The top left longitude/latitude configuration. */
+        topLeft?: GeoLocation | undefined;
+        /** The bottom right longitude/latitude configuration. */
+        bottomRight?: GeoLocation | undefined;
+    }
+    export interface GeoLocation {
+        lat: number;
+        lon: number;
+    }
+    /** The GeoDistanceFilter returns documents that include only hits that exists within a specific distance from a geo point. */
+    export interface GeoDistanceFilter extends FilterBase {
+        /** The elastic search index field to execute the filter on. */
+        field?: string | undefined;
+        /** The longitude/latitude configuration for the point of origin. */
+        location?: GeoLocation | undefined;
+        /** The range distance in meters. */
+        distance: number;
+    }
+    /** The NestedFilter is a joining filter and returns documents whose nested objects / documents (see nested mapping) match the specified filter. */
+    export interface NestedFilter extends FilterBase {
+        /** The path pointing to the nested object. */
+        path?: string | undefined;
+        /** Limits the result set. */
+        filter?: FilterBase | undefined;
+    }
+    /** The NumericRangeFilter returns documents with fields that have numeric values within a certain range. */
+    export interface NumericRangeFilter extends FilterBase {
+        /** The elastic search index field to execute the filter on. */
+        field?: string | undefined;
+        /** The numeric range with from and to properties. */
+        range?: NumericRange | undefined;
+    }
+    export interface NumericRange {
+        /** Tranlsated range names. */
+        names?: TranslatedStringDictionary | undefined;
+        /** The from value. */
+        from?: number | undefined;
+        /** The to value. */
+        to?: number | undefined;
+    }
+    /** The PrefixFilter returns documents that have fields containing terms with a specified prefix (not analyzed). */
+    export interface PrefixFilter extends FilterBase {
+        /** The elastic search index field to execute the filter on. */
+        field?: string | undefined;
+        /** The prefix term to filter on. */
+        prefix?: string | undefined;
+    }
+    /** The TermFilter returns documents that contain the exact term specified in the inverted index. */
+    export interface TermFilter extends FilterBase {
+        /** The elastic search index field to execute the filter on. */
+        field?: string | undefined;
+        /** The term to filter on. */
+        term?: string | undefined;
+    }
+    /** The TermsFilter returns documents that have fields that match any of the provided terms (not analyzed). */
+    export interface TermsFilter extends FilterBase {
+        /** The elastic search index field to execute the filter on. */
+        field?: string | undefined;
+        /** A list of OR combined terms. */
+        terms?: string[] | undefined;
+    }
+    /** An AggregationFilter is provided with each aggregated value. When selecting the aggregated value the aggregation filter is added to the search query and returns documents meeting the aggregation condition. */
+    export interface AggregationFilter extends FilterBase {
+        /** The name of the aggregation this filter is connected to. */
+        aggregationName?: string | undefined;
+        /** The aggregation filter property. Available filters are TermFilter, DateRangeFilter, NumericRangeFilter, GeoDistanceFilter and NestedFilter. */
+        filter?: FilterBase | undefined;
+        temporaryAggregatorRequestId?: string | undefined;
+    }
+    /** The ChildFilter allows to apply filters on child documents and returns documents that match the specified filter on the child document. */
+    export interface ChildFilter extends FilterBase {
+        /** The elastic search index type to filter as a child. */
+        childType?: string | undefined;
+        /** The filter to apply on the child entity. It accepts all filters. */
+        filter?: FilterBase | undefined;
+    }
+    /** The ParentFilter allows to apply filters on parent documents and returns documents that match the specified filter on the parent document. */
+    export interface ParentFilter extends FilterBase {
+        /** The elastic search index type to filter as a parent. */
+        parentType?: string | undefined;
+        /** The filter to apply on the child entity. It accepts all filters. */
+        filter?: FilterBase | undefined;
+    }
+    export enum SearchBehaviour {
+        DropInvalidCharactersOnFailure,
+        WildcardOnSingleTerm
     }
     export interface BusinessProcessWaitForLifeCycleResult {
         lifeCycleHit?: BusinessProcessLifeCycle | undefined;
@@ -2061,7 +2080,7 @@ declare module "picturepark" {
     export interface SortInfo {
         /** The elastic search index field to sort on. */
         field?: string | undefined;
-        /** The sort direction (Asc/Desc). */
+        /** The sort direction (ascending/descending). */
         direction: SortDirection;
     }
     export enum SortDirection {
@@ -2167,16 +2186,6 @@ declare module "picturepark" {
         createdByUser?: string | undefined;
         modifiedByUser?: string | undefined;
     }
-    export enum ContentResolveBehaviour {
-        Content,
-        LinkedListItems,
-        Metadata,
-        Outputs,
-        InnerDisplayValueThumbnail,
-        InnerDisplayValueList,
-        InnerDisplayValueDetail,
-        InnerDisplayValueName
-    }
     /** A content detail. */
     export interface ContentDetail {
         /** Audit data with information regarding document creation and modification. */
@@ -2202,8 +2211,8 @@ declare module "picturepark" {
         outputs?: Output[] | undefined;
         /** The id of a owner token. Defines the content owner. */
         ownerTokenId?: string | undefined;
-        /** The trashed flag. */
-        trashed: boolean;
+        /** The lifecycle of the content. */
+        lifeCycle: LifeCycle;
     }
     export interface DisplayValueDictionary {
         [key: string]: string | any;
@@ -2260,6 +2269,53 @@ declare module "picturepark" {
     }
     export interface OutputDetail extends Output {
     }
+    export enum LifeCycle {
+        Draft,
+        Active,
+        Inactive,
+        Deleted
+    }
+    export enum ContentResolveBehaviour {
+        Content,
+        LinkedListItems,
+        Metadata,
+        Outputs,
+        InnerDisplayValueThumbnail,
+        InnerDisplayValueList,
+        InnerDisplayValueDetail,
+        InnerDisplayValueName
+    }
+    export interface BaseResultOfContent {
+        totalResults: number;
+        results: Content[];
+        pageToken?: string | undefined;
+        queryDebugInformation?: QueryDebugInformation | undefined;
+    }
+    export interface SearchBehaviourBaseResultOfContent extends BaseResultOfContent {
+        searchString?: string | undefined;
+        isSearchStringRewritten: boolean;
+    }
+    export interface ContentSearchResult extends SearchBehaviourBaseResultOfContent {
+        elapsedMilliseconds: number;
+    }
+    export interface Content {
+        audit?: UserAudit | undefined;
+        /** The id of the schema with schema type content. */
+        contentSchemaId?: string | undefined;
+        /** An optional id list of schemas with schema type layer. */
+        layerSchemaIds?: string[] | undefined;
+        /** Contains display values of the specified language, rendered according to the content schema's display pattern configuration. */
+        displayValues?: {
+            [key: string]: string;
+        } | undefined;
+        id?: string | undefined;
+        /** All the ids of the broken references (tagboxes) */
+        brokenReferenceIds?: string[] | undefined;
+        /** All the ids of the broken indirect references (tagbox that has a property that reference a broken tagbox) */
+        brokenIndirectReferenceIds?: string[] | undefined;
+        /** All the target ids of the broken relations */
+        brokenRelationTargetIds?: string[] | undefined;
+    }
     export interface ContentSearchRequest {
         /** Limits the simple search fields to the fields available in the specified channel. */
         channelId?: string | undefined;
@@ -2309,43 +2365,34 @@ declare module "picturepark" {
         Edit,
         Update,
         Manage,
-        Trash
+        Delete
     }
     export enum ContentSearchType {
         Metadata,
         FullText,
         MetadataAndFullText
     }
-    export interface BaseResultOfContent {
-        totalResults: number;
-        results: Content[];
-        pageToken?: string | undefined;
-        queryDebugInformation?: QueryDebugInformation | undefined;
-    }
-    export interface SearchBehaviourBaseResultOfContent extends BaseResultOfContent {
+    export interface ObjectAggregationResult {
+        /** How long did the search and aggregation take. */
+        elapsedMilliseconds: number;
+        /** Results of the aggregation. */
+        aggregationResults: AggregationResult[];
+        /** Search string used to query the data */
         searchString?: string | undefined;
+        /** Flag to notify if the SearchString was modified compared to the original requested one */
         isSearchStringRewritten: boolean;
     }
-    export interface ContentSearchResult extends SearchBehaviourBaseResultOfContent {
-        elapsedMilliseconds: number;
+    export interface AggregationResult {
+        name?: string | undefined;
+        sumOtherDocCount?: number | undefined;
+        aggregationResultItems?: AggregationResultItem[] | undefined;
     }
-    export interface Content {
-        audit?: UserAudit | undefined;
-        /** The id of the schema with schema type content. */
-        contentSchemaId?: string | undefined;
-        /** An optional id list of schemas with schema type layer. */
-        layerSchemaIds?: string[] | undefined;
-        /** Contains display values of the specified language, rendered according to the content schema's display pattern configuration. */
-        displayValues?: {
-            [key: string]: string;
-        } | undefined;
-        id?: string | undefined;
-        /** All the ids of the broken references (tagboxes) */
-        brokenReferenceIds?: string[] | undefined;
-        /** All the ids of the broken indirect references (tagbox that has a property that reference a broken tagbox) */
-        brokenIndirectReferenceIds?: string[] | undefined;
-        /** All the target ids of the broken relations */
-        brokenRelationTargetIds?: string[] | undefined;
+    export interface AggregationResultItem {
+        name?: string | undefined;
+        count: number;
+        filter?: AggregationFilter | undefined;
+        active: boolean;
+        aggregationResults?: AggregationResult[] | undefined;
     }
     export interface ContentAggregationOnChannelRequest {
         /** Limits the search by using a query string filter. The Lucene query string syntax is supported. Defaults to *. */
@@ -2372,33 +2419,6 @@ declare module "picturepark" {
     export interface ContentAggregationRequest extends ContentAggregationOnChannelRequest {
         /** Defines the aggregation resultset. */
         aggregators?: AggregatorBase[] | undefined;
-    }
-    export interface ObjectAggregationResult {
-        elapsedMilliseconds: number;
-        aggregationResults?: AggregationResult[] | undefined;
-        /** The search string used to query the data */
-        searchString?: string | undefined;
-        /** Flag to notify if the SearchString was modified compared to the original requested one */
-        isSearchStringRewritten: boolean;
-    }
-    export interface AggregationResult {
-        name?: string | undefined;
-        sumOtherDocCount?: number | undefined;
-        aggregationResultItems?: AggregationResultItem[] | undefined;
-    }
-    export interface AggregationResultItem {
-        name?: string | undefined;
-        count: number;
-        filter?: AggregationFilter | undefined;
-        active: boolean;
-        aggregationResults?: AggregationResult[] | undefined;
-    }
-    export interface ContentReferencesRequest {
-        shares?: PagingRequest | undefined;
-    }
-    export interface PagingRequest {
-        start: number;
-        limit: number;
     }
     export interface ContentReferencesResult {
         metadataReferences?: ContentReferences[] | undefined;
@@ -2436,9 +2456,20 @@ declare module "picturepark" {
         Basic,
         Embed
     }
+    export interface ContentReferencesRequest {
+        shares?: PagingRequest | undefined;
+    }
+    export interface PagingRequest {
+        start: number;
+        limit: number;
+    }
     export interface ContentManyReferencesRequest {
         contentIds?: string[] | undefined;
         shares?: PagingRequest | undefined;
+    }
+    export interface DownloadLink {
+        downloadToken?: string | undefined;
+        downloadUrl?: string | undefined;
     }
     export interface ContentDownloadLinkCreateRequest {
         contents?: ContentDownloadRequestItem[] | undefined;
@@ -2446,10 +2477,6 @@ declare module "picturepark" {
     export interface ContentDownloadRequestItem {
         contentId?: string | undefined;
         outputFormatId?: string | undefined;
-    }
-    export interface DownloadLink {
-        downloadToken?: string | undefined;
-        downloadUrl?: string | undefined;
     }
     /** Values that represent thumbnail sizes. */
     export enum ThumbnailSize {
@@ -2620,26 +2647,6 @@ declare module "picturepark" {
         /** Limits the content document result set to specific ContentRights the user has */
         rightsFilter?: ContentRight[] | undefined;
     }
-    export interface PermissionSetSearchRequest {
-        /** Limits the search by using a query string filter. The Lucene query string syntax is supported. */
-        searchString?: string | undefined;
-        /** An optional list of search behaviours. All the passed behaviours will be applied */
-        searchBehaviours?: SearchBehaviour[] | undefined;
-        sort?: SortInfo[] | undefined;
-        /** Defines the offset from the first result you want to fetch. Defaults to 0. */
-        start: number;
-        /** Limits the document count of the result set. Defaults to 30. */
-        limit: number;
-        filter?: FilterBase | undefined;
-        rightFilter?: PermissionSetRight | undefined;
-        /** Enable debug mode to get as result of the Searched additional debug information. Warning! It severely affects performance. */
-        debugMode: boolean;
-        searchLanguages?: string[] | undefined;
-    }
-    export enum PermissionSetRight {
-        Apply,
-        Manage
-    }
     export interface BaseResultOfPermissionSet {
         totalResults: number;
         results: PermissionSet[];
@@ -2661,10 +2668,29 @@ declare module "picturepark" {
         /** Language specific permission set names. */
         names?: TranslatedStringDictionary | undefined;
     }
+    export interface PermissionSetSearchRequest {
+        /** Limits the search by using a query string filter. The Lucene query string syntax is supported. */
+        searchString?: string | undefined;
+        /** An optional list of search behaviours. All the passed behaviours will be applied */
+        searchBehaviours?: SearchBehaviour[] | undefined;
+        sort?: SortInfo[] | undefined;
+        /** Defines the offset from the first result you want to fetch. Defaults to 0. */
+        start: number;
+        /** Limits the document count of the result set. Defaults to 30. */
+        limit: number;
+        filter?: FilterBase | undefined;
+        rightFilter?: PermissionSetRight | undefined;
+        /** Enable debug mode to get as result of the Searched additional debug information. Warning! It severely affects performance. */
+        debugMode: boolean;
+        searchLanguages?: string[] | undefined;
+    }
+    export enum PermissionSetRight {
+        Apply,
+        Manage
+    }
     export interface PermissionSetDetailOfContentRight {
         id?: string | undefined;
         names?: TranslatedStringDictionary | undefined;
-        trashed: boolean;
         userRolesRights?: PermissionUserRoleRightsOfContentRight[] | undefined;
         userRolesPermissionSetRights?: PermissionUserRoleRightsOfPermissionSetRight[] | undefined;
         exclusive: boolean;
@@ -2681,24 +2707,6 @@ declare module "picturepark" {
         userRoleId?: string | undefined;
         names?: TranslatedStringDictionary | undefined;
         rights?: PermissionSetRight[] | undefined;
-    }
-    export interface DocumentHistorySearchRequest {
-        /** Limits the start date of the search request. Default to last 1 year. */
-        from: Date;
-        /** Limits the end date of the search request. Default to now. */
-        to: Date;
-        /** Limits the document count of the result set. Defaults to 30. */
-        limit: number;
-        /** To get a large amount of data, page token returned from the response can be used to get all data. */
-        pageToken?: string | undefined;
-        /** Limits the search to a specific document id. E.g. ContentId */
-        documentId?: string | undefined;
-        /** The document version to search. Default to -1 to not limit to a specific document version. */
-        documentVersion: number;
-        /** Limits the search to a specifc document type. */
-        documentType?: string | undefined;
-        /** Sorts the search results. Sorting on a not indexed field will throw an exception. */
-        sort?: SortInfo | undefined;
     }
     export interface DocumentHistorySearchResult {
         totalResults: number;
@@ -2729,6 +2737,24 @@ declare module "picturepark" {
         Delete,
         Activate,
         Deactivate
+    }
+    export interface DocumentHistorySearchRequest {
+        /** Limits the start date of the search request. Default to last 1 year. */
+        from: Date;
+        /** Limits the end date of the search request. Default to now. */
+        to: Date;
+        /** Limits the document count of the result set. Defaults to 30. */
+        limit: number;
+        /** To get a large amount of data, page token returned from the response can be used to get all data. */
+        pageToken?: string | undefined;
+        /** Limits the search to a specific document id. E.g. ContentId */
+        documentId?: string | undefined;
+        /** The document version to search. Default to -1 to not limit to a specific document version. */
+        documentVersion: number;
+        /** Limits the search to a specifc document type. */
+        documentType?: string | undefined;
+        /** Sorts the search results. Sorting on a not indexed field will throw an exception. */
+        sort?: SortInfo | undefined;
     }
     export interface DocumentHistoryDifference {
         documentId?: string | undefined;
@@ -2766,6 +2792,28 @@ declare module "picturepark" {
         id?: string | undefined;
         names?: TranslatedStringDictionary | undefined;
     }
+    /** The version view item for the environment. */
+    export interface VersionInfo {
+        /** The manual file version of Picturepark.Contract.dll. */
+        fileVersion?: string | undefined;
+        /** The GitVersionTask generated file product version of Picturepark.Configuration.dll. */
+        fileProductVersion?: string | undefined;
+        /** The current contract version stored in CustomerDoc / EnvironmentDoc. */
+        contractVersion?: string | undefined;
+        /** The bamboo release version. Only provided on bamboo deployments. */
+        release?: string | undefined;
+    }
+    /** The detail view item for the list item. */
+    export interface ListItemDetail {
+        /** The content data of the list item. */
+        content?: any | undefined;
+        /** The id of the schema with schema type list. */
+        contentSchemaId?: string | undefined;
+        /** Contains language specific display values, rendered according to the list schema's display pattern configuration. */
+        displayValues?: DisplayValueDictionary | undefined;
+        /** The list item id. */
+        id?: string | undefined;
+    }
     export enum ListItemResolveBehaviour {
         Content,
         LinkedListItems,
@@ -2774,8 +2822,17 @@ declare module "picturepark" {
         InnerDisplayValueDetail,
         InnerDisplayValueName
     }
-    /** The detail view item for the list item. */
-    export interface ListItemDetail {
+    export interface BaseResultOfListItem {
+        totalResults: number;
+        results: ListItem[];
+        pageToken?: string | undefined;
+        queryDebugInformation?: QueryDebugInformation | undefined;
+    }
+    /** Encapsulates the result of a list item search. */
+    export interface ListItemSearchResult extends BaseResultOfListItem {
+    }
+    /** A document stored in the elastic search metadata index, with fields corresponding to the the schemantics of its underlying list schema. */
+    export interface ListItem {
         /** The content data of the list item. */
         content?: any | undefined;
         /** The id of the schema with schema type list. */
@@ -2816,26 +2873,6 @@ declare module "picturepark" {
         debugMode: boolean;
         /** Limits the list item document result set to that life cycle state. Defaults to ActiveOnly. */
         lifeCycleFilter: LifeCycleFilter;
-    }
-    export interface BaseResultOfListItem {
-        totalResults: number;
-        results: ListItem[];
-        pageToken?: string | undefined;
-        queryDebugInformation?: QueryDebugInformation | undefined;
-    }
-    /** Encapsulates the result of a list item search. */
-    export interface ListItemSearchResult extends BaseResultOfListItem {
-    }
-    /** A document stored in the elastic search metadata index, with fields corresponding to the the schemantics of its underlying list schema. */
-    export interface ListItem {
-        /** The content data of the list item. */
-        content?: any | undefined;
-        /** The id of the schema with schema type list. */
-        contentSchemaId?: string | undefined;
-        /** Contains language specific display values, rendered according to the list schema's display pattern configuration. */
-        displayValues?: DisplayValueDictionary | undefined;
-        /** The list item id. */
-        id?: string | undefined;
     }
     export interface ListItemAggregationRequest {
         /** Limits the search by using a query string filter. The Lucene query string syntax is supported. Defaults to *. */
@@ -2936,16 +2973,6 @@ declare module "picturepark" {
     }
     export interface ListItemReferences extends ReferencesBase {
     }
-    export interface LiveStreamSearchRequest {
-        /** Limits the start date of the search request. */
-        from: Date;
-        /** Limits the end date of the search request. */
-        to: Date;
-        /** Limits the document count of the result set. Defaults to 30. */
-        limit: number;
-        /** To get a large amount of data, page token returned from the response can be used to get all data. */
-        pageToken?: string | undefined;
-    }
     export interface BaseResultOfObject {
         totalResults: number;
         results: any[];
@@ -2958,6 +2985,161 @@ declare module "picturepark" {
     }
     export interface ObjectSearchResult extends SearchBehaviourBaseResultOfObject {
         elapsedMilliseconds: number;
+    }
+    export interface LiveStreamSearchRequest {
+        /** Limits the start date of the search request. */
+        from: Date;
+        /** Limits the end date of the search request. */
+        to: Date;
+        /** Limits the document count of the result set. Defaults to 30. */
+        limit: number;
+        /** To get a large amount of data, page token returned from the response can be used to get all data. */
+        pageToken?: string | undefined;
+    }
+    export interface Message {
+        id?: string | undefined;
+        contractVersion?: string | undefined;
+        maximumRetryCount: number;
+        retries: number;
+        priority: number;
+        deduplicate: boolean;
+    }
+    export interface LiveStreamMessage extends Message {
+        customerId?: string | undefined;
+        customerAlias?: string | undefined;
+        timestamp: Date;
+        scope?: string | undefined;
+        documentChange?: DocumentChange | undefined;
+        applicationEvent?: ApplicationEvent | undefined;
+    }
+    export interface DocumentChange {
+        documentName?: string | undefined;
+        documentId?: string | undefined;
+        version: number;
+        action?: string | undefined;
+        timeStamp: Date;
+    }
+    export interface ApplicationEvent {
+        timestamp: Date;
+    }
+    export interface TransferEvent extends ApplicationEvent {
+        transferId?: string | undefined;
+        state: TransferState;
+    }
+    export enum TransferState {
+        Draft,
+        UploadInProgress,
+        UploadCompleted,
+        ImportInProgress,
+        ImportCompleted,
+        UploadCancelled,
+        ImportCancelled,
+        ImportFailed,
+        Created,
+        Deleted,
+        TransferReady,
+        FileDeleteInProgress,
+        TransferCleanup,
+        ImportCompletedWithErrors
+    }
+    export interface ReindexEvent extends ApplicationEvent {
+        indexId?: string | undefined;
+        state: IndexState;
+    }
+    export enum IndexState {
+        Draft,
+        Create,
+        Inactive,
+        Active,
+        Closed,
+        ReindexInProgress,
+        Cancelled
+    }
+    export interface OutputBackupEvent extends ApplicationEvent {
+        outputId?: string | undefined;
+        contentId?: string | undefined;
+        outputFormatId?: string | undefined;
+    }
+    export interface OutputBackupMissingEvent extends ApplicationEvent {
+        outputId?: string | undefined;
+        contentId?: string | undefined;
+        outputFormatId?: string | undefined;
+    }
+    export interface OutputBackupRemoveEvent extends ApplicationEvent {
+        filePaths?: string[] | undefined;
+    }
+    export interface ContentBackupRecoveryEvent extends ApplicationEvent {
+        contentId?: string | undefined;
+        businessProcessId?: string | undefined;
+    }
+    export interface ContentDetailViewEvent extends ApplicationEvent {
+        contentIds?: string[] | undefined;
+    }
+    export interface ContentDownloadEvent extends ApplicationEvent {
+        downloadInfos?: DownloadTrackingInfo[] | undefined;
+        fileSize: number;
+        shareToken?: string | undefined;
+        range?: string | undefined;
+    }
+    export interface DownloadTrackingInfo {
+        contentId?: string | undefined;
+        outputFormatId?: string | undefined;
+        width?: number | undefined;
+        height?: number | undefined;
+        contentDisposition: ContentDisposition;
+    }
+    export enum ContentDisposition {
+        Attachment,
+        Inline
+    }
+    export interface SessionRenewalEvent extends ApplicationEvent {
+        authorizationState: AuthorizationState;
+    }
+    export enum AuthorizationState {
+        Reviewed,
+        ToBeReviewed,
+        Locked,
+        Invited
+    }
+    export interface SharePageViewEvent extends ApplicationEvent {
+        shareToken?: string | undefined;
+    }
+    export interface ApiStatisticsEvent extends ApplicationEvent {
+        requestsPerClient?: {
+            [key: string]: number;
+        } | undefined;
+    }
+    export interface BusinessProcessEvent extends ApplicationEvent {
+        businessProcessId?: string | undefined;
+        lifeCycle?: BusinessProcessLifeCycle | undefined;
+        state?: string | undefined;
+    }
+    export interface ConsoleMessage extends Message {
+        command?: string | undefined;
+        arguments?: TupleOfStringAndString[] | undefined;
+        targetQueue?: string | undefined;
+    }
+    export interface TupleOfStringAndString {
+        item1?: string | undefined;
+        item2?: string | undefined;
+    }
+    export interface NodeInfoMessage extends Message {
+        nodeId?: string | undefined;
+        hostName?: string | undefined;
+        lastResponseTime: Date;
+        serviceName?: string | undefined;
+        fileVersion?: string | undefined;
+        productVersion?: string | undefined;
+        release?: string | undefined;
+        logLevel?: string | undefined;
+    }
+    export interface BaseResultOfOutput {
+        totalResults: number;
+        results: Output[];
+        pageToken?: string | undefined;
+        queryDebugInformation?: QueryDebugInformation | undefined;
+    }
+    export interface OutputSearchResult extends BaseResultOfOutput {
     }
     export interface OutputSearchRequest {
         /** Defines the offset from the first result you want to fetch. Defaults to 0. */
@@ -2973,14 +3155,6 @@ declare module "picturepark" {
         /** The output format id of the outputs you want to fetch. */
         outputFormatIds?: string[] | undefined;
     }
-    export interface BaseResultOfOutput {
-        totalResults: number;
-        results: Output[];
-        pageToken?: string | undefined;
-        queryDebugInformation?: QueryDebugInformation | undefined;
-    }
-    export interface OutputSearchResult extends BaseResultOfOutput {
-    }
     export interface UserProfile {
         id?: string | undefined;
         emailAddress?: string | undefined;
@@ -2995,21 +3169,24 @@ declare module "picturepark" {
         systemUserRoles?: SystemUserRole[] | undefined;
         isDeveloper: boolean;
     }
+    /** User's address */
     export interface UserAddress {
+        /** Company address line */
         company?: string | undefined;
-        address?: string | undefined;
-        alternativeAddress?: string | undefined;
+        /** Company department. */
         department?: string | undefined;
+        /** Street and house number. */
+        address?: string | undefined;
+        /** Additional address line. */
+        alternativeAddress?: string | undefined;
+        /** ZIP code. */
         zip?: string | undefined;
+        /** City or town. */
         city?: string | undefined;
+        /** Phone number. */
         phone?: string | undefined;
+        /** Country code. */
         countryCode?: string | undefined;
-    }
-    export enum AuthorizationState {
-        Reviewed,
-        ToBeReviewed,
-        Locked,
-        Invited
     }
     export enum SystemUserRole {
         Administrator
@@ -3021,116 +3198,6 @@ declare module "picturepark" {
         lastName?: string | undefined;
         languageCode?: string | undefined;
         address?: UserAddress | undefined;
-    }
-    /** The version view item for the environment. */
-    export interface VersionInfo {
-        /** The manual file version of Picturepark.Contract.dll. */
-        fileVersion?: string | undefined;
-        /** The GitVersionTask generated file product version of Picturepark.Configuration.dll. */
-        fileProductVersion?: string | undefined;
-        /** The current contract version stored in CustomerDoc / EnvironmentDoc. */
-        contractVersion?: string | undefined;
-        /** The bamboo release version. Only provided on bamboo deployments. */
-        release?: string | undefined;
-    }
-    export interface ShareDetail {
-        id?: string | undefined;
-        name?: string | undefined;
-        description?: string | undefined;
-        creator?: ShareUser | undefined;
-        audit?: UserAudit | undefined;
-        contentSelections?: ShareContentDetail[] | undefined;
-        layerSchemaIds?: string[] | undefined;
-        data?: ShareDataBase | undefined;
-        mailTemplateId?: string | undefined;
-        expirationDate?: Date | undefined;
-        expired: boolean;
-        template?: TemplateBase | undefined;
-        outputAccess: OutputAccess;
-        shareType: ShareType;
-    }
-    /** Reduced set of user information used for shares */
-    export interface ShareUser {
-        /** Name of user */
-        displayName?: string | undefined;
-        /** MD5 hash of email address. Can be used to display gravatar image */
-        emailHash?: string | undefined;
-    }
-    export interface ShareContentDetail {
-        /** The id of the schema with schema type content. */
-        contentSchemaId?: string | undefined;
-        /** An optional id list of schemas with type layer. */
-        layerSchemaIds?: string[] | undefined;
-        content?: DataDictionary | undefined;
-        metadata?: DataDictionary | undefined;
-        id?: string | undefined;
-        outputs?: ShareOutputBase[] | undefined;
-        contentType: ContentType;
-        /** Contains language specific display values, rendered according to the content schema's display pattern configuration. */
-        displayValues?: DisplayValueDictionary | undefined;
-    }
-    export interface ShareOutputBase {
-        contentId?: string | undefined;
-        outputFormatId?: string | undefined;
-        /** Url to directly download output. In case of BasicShare if not fetched using a token, a placeholder {token} is included which needs to be replaced with the recipient's token */
-        url?: string | undefined;
-        detail?: OutputDataBase | undefined;
-    }
-    export interface ShareOutputBasic extends ShareOutputBase {
-    }
-    export interface ShareOutputEmbed extends ShareOutputBase {
-        token?: string | undefined;
-    }
-    export interface ShareDataBase {
-        url?: string | undefined;
-    }
-    export interface ShareDataEmbed extends ShareDataBase {
-        token?: string | undefined;
-    }
-    export interface ShareDataBasic extends ShareDataBase {
-        mailRecipients?: MailRecipient[] | undefined;
-        internalRecipients?: InternalRecipient[] | undefined;
-        languageCode?: string | undefined;
-    }
-    export interface MailRecipient {
-        userEmail?: UserEmail | undefined;
-        token?: string | undefined;
-        url?: string | undefined;
-    }
-    export interface UserEmail {
-        firstName?: string | undefined;
-        lastName?: string | undefined;
-        emailAddress?: string | undefined;
-    }
-    export interface InternalRecipient {
-        recipient?: User | undefined;
-        token?: string | undefined;
-        url?: string | undefined;
-    }
-    export interface User {
-        id?: string | undefined;
-        firstName?: string | undefined;
-        lastName?: string | undefined;
-        emailAddress?: string | undefined;
-    }
-    export interface TemplateBase {
-        width?: number | undefined;
-        height?: number | undefined;
-    }
-    export interface CardTemplate extends TemplateBase {
-        showNavigation: boolean;
-        showOverlay: boolean;
-        showLogo: boolean;
-        showFooter: boolean;
-    }
-    export interface ListTemplate extends TemplateBase {
-    }
-    export interface BasicTemplate extends TemplateBase {
-    }
-    export enum OutputAccess {
-        Full,
-        Preview,
-        None
     }
     export interface SchemaDetail {
         /** The schema id. */
@@ -3482,23 +3549,6 @@ declare module "picturepark" {
         /** The number of fields that have sorting information stored in the search index. */
         sortableField: number;
     }
-    export interface SchemaSearchRequest {
-        /** Limits the search by using a query string filter. The Lucene query string syntax is supported. */
-        searchString?: string | undefined;
-        /** An optional list of search behaviours. All the passed behaviours will be applied */
-        searchBehaviours?: SearchBehaviour[] | undefined;
-        /** Sorts the search results. Sorting on a not indexed field will throw an exception. */
-        sort?: SortInfo[] | undefined;
-        /** Defines the offset from the first result you want to fetch. Defaults to 0. */
-        start: number;
-        /** Limits the document count of the result set. Defaults to 30. */
-        limit: number;
-        /** An optional search filter. Limits the schema result set. */
-        filter?: FilterBase | undefined;
-        /** Enable debug mode to get as result of the Searched additional debug information. Warning! It severely affects performance. */
-        debugMode: boolean;
-        searchLanguages?: string[] | undefined;
-    }
     export interface BaseResultOfSchema {
         totalResults: number;
         results: Schema[];
@@ -3533,8 +3583,22 @@ declare module "picturepark" {
         /** Is true when schema is system provided. */
         system: boolean;
     }
-    export interface IndexFieldsSearchBySchemaIdsRequest {
-        schemaIds?: string[] | undefined;
+    export interface SchemaSearchRequest {
+        /** Limits the search by using a query string filter. The Lucene query string syntax is supported. */
+        searchString?: string | undefined;
+        /** An optional list of search behaviours. All the passed behaviours will be applied */
+        searchBehaviours?: SearchBehaviour[] | undefined;
+        /** Sorts the search results. Sorting on a not indexed field will throw an exception. */
+        sort?: SortInfo[] | undefined;
+        /** Defines the offset from the first result you want to fetch. Defaults to 0. */
+        start: number;
+        /** Limits the document count of the result set. Defaults to 30. */
+        limit: number;
+        /** An optional search filter. Limits the schema result set. */
+        filter?: FilterBase | undefined;
+        /** Enable debug mode to get as result of the Searched additional debug information. Warning! It severely affects performance. */
+        debugMode: boolean;
+        searchLanguages?: string[] | undefined;
     }
     /** Contains compiled field information. */
     export interface IndexField {
@@ -3561,10 +3625,16 @@ declare module "picturepark" {
         /** Path to the sorting information in the DataSortValuesField sort index. */
         sortField?: string | undefined;
     }
+    export interface IndexFieldsSearchBySchemaIdsRequest {
+        schemaIds?: string[] | undefined;
+    }
     /** Response that tells if exists */
     export interface ExistsResponse {
         /** Gets or sets a value indicating whether it exists */
         exists: boolean;
+    }
+    export interface SchemaCreateResult {
+        schema?: SchemaDetail | undefined;
     }
     export interface SchemaCreateRequest {
         /** The schema id. Can be a slug, but must be unique throughout the whole customer setup. */
@@ -3596,7 +3666,7 @@ declare module "picturepark" {
         /** An optional id list of schemas with type content for a schema with type layer. */
         referencedInContentSchemaIds?: string[] | undefined;
     }
-    export interface SchemaCreateResult {
+    export interface SchemaUpdateResult {
         schema?: SchemaDetail | undefined;
     }
     export interface SchemaUpdateRequest {
@@ -3625,15 +3695,11 @@ declare module "picturepark" {
         /** Types control schema usage. Schema types can only be added, but not removed. */
         types?: SchemaType[] | undefined;
     }
-    export interface SchemaUpdateResult {
-        schema?: SchemaDetail | undefined;
-    }
     export interface SchemaDeleteResult {
     }
     export interface PermissionSetDetailOfMetadataRight {
         id?: string | undefined;
         names?: TranslatedStringDictionary | undefined;
-        trashed: boolean;
         userRolesRights?: PermissionUserRoleRightsOfMetadataRight[] | undefined;
         userRolesPermissionSetRights?: PermissionUserRoleRightsOfPermissionSetRight[] | undefined;
         exclusive: boolean;
@@ -3650,15 +3716,6 @@ declare module "picturepark" {
         View,
         Edit,
         Manage
-    }
-    /** Schema import request */
-    export interface SchemaImportRequest {
-        /** Id of the previously uploaded file transfer */
-        fileTransferId?: string | undefined;
-        /** Allow creating list items that refer to list items or contents that don't exist in the system. */
-        allowMissingDependencies: boolean;
-        /** Import the list items for the schema. */
-        importListItems: boolean;
     }
     /** Represents a transfer. */
     export interface Transfer {
@@ -3677,21 +3734,14 @@ declare module "picturepark" {
         /** ID of collection created from transfer. */
         collectionId?: string | undefined;
     }
-    export enum TransferState {
-        Draft,
-        UploadInProgress,
-        UploadCompleted,
-        ImportInProgress,
-        ImportCompleted,
-        UploadCancelled,
-        ImportCancelled,
-        ImportFailed,
-        Created,
-        Deleted,
-        TransferReady,
-        FileDeleteInProgress,
-        TransferCleanup,
-        ImportCompletedWithErrors
+    /** Schema import request */
+    export interface SchemaImportRequest {
+        /** Id of the previously uploaded file transfer */
+        fileTransferId?: string | undefined;
+        /** Allow creating list items that refer to list items or contents that don't exist in the system. */
+        allowMissingDependencies: boolean;
+        /** Import the list items for the schema. */
+        importListItems: boolean;
     }
     export interface CustomerServiceProviderConfiguration {
         serviceProviderId?: string | undefined;
@@ -3704,21 +3754,108 @@ declare module "picturepark" {
         settings?: string | undefined;
         userRoleIds?: string[] | undefined;
     }
-    export interface ShareSearchRequest {
-        /** Limits the search by using a query string filter. The Lucene query string syntax is supported. */
-        searchString?: string | undefined;
-        /** An optional list of search behaviours. All the passed behaviours will be applied */
-        searchBehaviours?: SearchBehaviour[] | undefined;
-        /** Sorts the search results. Sorting on a not indexed field will throw an exception. */
-        sort?: SortInfo[] | undefined;
-        /** Defines the offset from the first result you want to fetch. Defaults to 0. */
-        start: number;
-        /** Limits the document count of the result set. Defaults to 30. */
-        limit: number;
-        /** An optional search filter. Limits the share document result set. */
-        filter?: FilterBase | undefined;
-        /** Enable debug mode to get as result of the Searched additional debug information. Warning! It severely affects performance. */
-        debugMode: boolean;
+    export interface ShareDetail {
+        id?: string | undefined;
+        name?: string | undefined;
+        description?: string | undefined;
+        creator?: ShareUser | undefined;
+        audit?: UserAudit | undefined;
+        contentSelections?: ShareContentDetail[] | undefined;
+        layerSchemaIds?: string[] | undefined;
+        data?: ShareDataBase | undefined;
+        mailTemplateId?: string | undefined;
+        expirationDate?: Date | undefined;
+        expired: boolean;
+        template?: TemplateBase | undefined;
+        outputAccess: OutputAccess;
+        shareType: ShareType;
+    }
+    /** Reduced set of user information used for shares */
+    export interface ShareUser {
+        /** Name of user */
+        displayName?: string | undefined;
+        /** MD5 hash of email address. Can be used to display gravatar image */
+        emailHash?: string | undefined;
+    }
+    export interface ShareContentDetail {
+        /** The id of the schema with schema type content. */
+        contentSchemaId?: string | undefined;
+        /** An optional id list of schemas with type layer. */
+        layerSchemaIds?: string[] | undefined;
+        content?: DataDictionary | undefined;
+        metadata?: DataDictionary | undefined;
+        id?: string | undefined;
+        outputs?: ShareOutputBase[] | undefined;
+        contentType: ContentType;
+        /** Contains language specific display values, rendered according to the content schema's display pattern configuration. */
+        displayValues?: DisplayValueDictionary | undefined;
+    }
+    export interface ShareOutputBase {
+        contentId?: string | undefined;
+        outputFormatId?: string | undefined;
+        /** Url to directly download output. In case of BasicShare if not fetched using a token, a placeholder {token} is included which needs to be replaced with the recipient's token */
+        url?: string | undefined;
+        detail?: OutputDataBase | undefined;
+    }
+    export interface ShareOutputBasic extends ShareOutputBase {
+    }
+    export interface ShareOutputEmbed extends ShareOutputBase {
+        token?: string | undefined;
+    }
+    export interface ShareDataBase {
+        url?: string | undefined;
+    }
+    export interface ShareDataEmbed extends ShareDataBase {
+        token?: string | undefined;
+    }
+    export interface ShareDataBasic extends ShareDataBase {
+        mailRecipients?: MailRecipient[] | undefined;
+        internalRecipients?: InternalRecipient[] | undefined;
+        languageCode?: string | undefined;
+    }
+    export interface MailRecipient {
+        userEmail?: UserEmail | undefined;
+        token?: string | undefined;
+        url?: string | undefined;
+    }
+    export interface UserEmail {
+        firstName?: string | undefined;
+        lastName?: string | undefined;
+        emailAddress?: string | undefined;
+    }
+    export interface InternalRecipient {
+        recipient?: User | undefined;
+        token?: string | undefined;
+        url?: string | undefined;
+    }
+    export interface User {
+        /** User's Picturepark ID. */
+        id?: string | undefined;
+        /** User's first name. */
+        firstName?: string | undefined;
+        /** User's last name. */
+        lastName?: string | undefined;
+        /** Email address of the user (doubles as username). */
+        emailAddress: string;
+    }
+    export interface TemplateBase {
+        width?: number | undefined;
+        height?: number | undefined;
+    }
+    export interface CardTemplate extends TemplateBase {
+        showNavigation: boolean;
+        showOverlay: boolean;
+        showLogo: boolean;
+        showFooter: boolean;
+    }
+    export interface ListTemplate extends TemplateBase {
+    }
+    export interface BasicTemplate extends TemplateBase {
+    }
+    export enum OutputAccess {
+        Full,
+        Preview,
+        None
     }
     export interface BaseResultOfShare {
         totalResults: number;
@@ -3740,6 +3877,23 @@ declare module "picturepark" {
         audit?: UserAudit | undefined;
         expirationDate?: Date | undefined;
         shareType: ShareType;
+        isReadOnly: boolean;
+    }
+    export interface ShareSearchRequest {
+        /** Limits the search by using a query string filter. The Lucene query string syntax is supported. */
+        searchString?: string | undefined;
+        /** An optional list of search behaviours. All the passed behaviours will be applied */
+        searchBehaviours?: SearchBehaviour[] | undefined;
+        /** Sorts the search results. Sorting on a not indexed field will throw an exception. */
+        sort?: SortInfo[] | undefined;
+        /** Defines the offset from the first result you want to fetch. Defaults to 0. */
+        start: number;
+        /** Limits the document count of the result set. Defaults to 30. */
+        limit: number;
+        /** An optional search filter. Limits the share document result set. */
+        filter?: FilterBase | undefined;
+        /** Enable debug mode to get as result of the Searched additional debug information. Warning! It severely affects performance. */
+        debugMode: boolean;
     }
     export interface ShareAggregationRequest {
         searchString?: string | undefined;
@@ -3750,6 +3904,9 @@ declare module "picturepark" {
         filter?: FilterBase | undefined;
         aggregationFilters?: AggregationFilter[] | undefined;
         aggregators?: AggregatorBase[] | undefined;
+    }
+    export interface CreateShareResult {
+        shareId?: string | undefined;
     }
     export interface ShareBaseCreateRequest {
         name?: string | undefined;
@@ -3771,19 +3928,16 @@ declare module "picturepark" {
         languageCode?: string | undefined;
         mailTemplateId?: string | undefined;
     }
+    /** Represents a user role, which associates users with user rights. */
     export interface UserRole {
-        /** The user role id. */
+        /** User role ID. */
         id?: string | undefined;
-        trashed: boolean;
         /** Language specific user role names. */
         names?: TranslatedStringDictionary | undefined;
         /** All user rights for this user role. */
         userRights?: UserRight[] | undefined;
     }
     export interface ShareEmbedCreateRequest extends ShareBaseCreateRequest {
-    }
-    export interface CreateShareResult {
-        shareId?: string | undefined;
     }
     export interface ShareBaseUpdateRequest {
         name?: string | undefined;
@@ -3822,14 +3976,6 @@ declare module "picturepark" {
         /** LastTime stamp of last progress update from upload. */
         lastFileUploadProgressStamp: number;
     }
-    /** Request to search for transfers. */
-    export interface TransferSearchRequest {
-        searchString?: string | undefined;
-        searchBehaviours?: SearchBehaviour[] | undefined;
-        start: number;
-        limit: number;
-        filter?: FilterBase | undefined;
-    }
     export interface BaseResultOfTransfer {
         totalResults: number;
         results: Transfer[];
@@ -3844,6 +3990,14 @@ declare module "picturepark" {
     export interface TransferSearchResult extends SearchBehaviourBaseResultOfTransfer {
         /** Time in milliseconds query took to execute. */
         elapsedMilliseconds: number;
+    }
+    /** Request to search for transfers. */
+    export interface TransferSearchRequest {
+        searchString?: string | undefined;
+        searchBehaviours?: SearchBehaviour[] | undefined;
+        start: number;
+        limit: number;
+        filter?: FilterBase | undefined;
     }
     /** Creates a transfer. */
     export interface CreateTransferRequest {
@@ -4029,14 +4183,6 @@ declare module "picturepark" {
         CleanupInProgress,
         CleanupCompleted
     }
-    /** Request to search for file transfers. */
-    export interface FileTransferSearchRequest {
-        searchString?: string | undefined;
-        searchBehaviours?: SearchBehaviour[] | undefined;
-        start: number;
-        limit: number;
-        filter?: FilterBase | undefined;
-    }
     export interface BaseResultOfFileTransfer {
         totalResults: number;
         results: FileTransfer[];
@@ -4051,6 +4197,14 @@ declare module "picturepark" {
     export interface FileTransferSearchResult extends SearchBehaviourBaseResultOfFileTransfer {
         /** Time in milliseconds query took to execute. */
         elapsedMilliseconds: number;
+    }
+    /** Request to search for file transfers. */
+    export interface FileTransferSearchRequest {
+        searchString?: string | undefined;
+        searchBehaviours?: SearchBehaviour[] | undefined;
+        start: number;
+        limit: number;
+        filter?: FilterBase | undefined;
     }
     /** Blacklist containing file name patterns skipped when uploading. */
     export interface Blacklist {
@@ -4089,25 +4243,28 @@ declare module "picturepark" {
         /** An optional id list of content permission sets. Controls content accessibility outside of content ownership. */
         contentPermissionSetIds?: string[] | undefined;
     }
-    export interface UserCreateRequest {
-        firstName?: string | undefined;
-        lastName?: string | undefined;
-        emailAddress?: string | undefined;
-        languageCode?: string | undefined;
-        userRoleIds?: string[] | undefined;
-        address?: UserAddress | undefined;
-    }
+    /** Represents the updateable fields of the user. */
     export interface UserUpdateRequest extends User {
+        /** User roles the user should be assigned to. Overwrites the original user roles. */
         userRoles?: UserRole[] | undefined;
+        /** Comment saved for the user. */
         comment?: string | undefined;
+        /** Preferred language, e.g. for correspondence. */
         languageCode?: string | undefined;
+        /** User's address. */
         address?: UserAddress | undefined;
     }
+    /** Detail information about a user. */
     export interface UserDetail extends UserUpdateRequest {
+        /** Owner tokens referencing the user. */
         ownerTokens?: OwnerToken[] | undefined;
+        /** Authorization state the user is currently in. */
         authorizationState: AuthorizationState;
+        /** Life cycle state the user is currently in. */
         lifeCycle: LifeCycle;
+        /** The support user is a user created for Picturepark support personnel. */
         isSupportUser: boolean;
+        /** Read-only users can't be removed from the system, e.g. service user. */
         isReadOnly: boolean;
     }
     export interface OwnerToken {
@@ -4116,27 +4273,20 @@ declare module "picturepark" {
         /** The id of the user to whom this ownertoken currently belongs to. */
         userId?: string | undefined;
     }
-    export enum LifeCycle {
-        Draft,
-        Active,
-        Inactive,
-        Deleted
-    }
-    export interface UserSearchRequest {
-        /** Limits the search by using a query string filter. The Lucene query string syntax is supported. */
-        searchString?: string | undefined;
-        /** An optional list of search behaviours. All the passed behaviours will be applied */
-        searchBehaviours?: SearchBehaviour[] | undefined;
-        sort?: SortInfo[] | undefined;
-        /** Defines the offset from the first result you want to fetch. Defaults to 0. */
-        start: number;
-        /** Limits the document count of the result set. Defaults to 30. */
-        limit: number;
-        filter?: FilterBase | undefined;
-        lifeCycleFilter: LifeCycleFilter;
-        userRightsFilter?: UserRight[] | undefined;
-        /** Enable debug mode to get as result of the Searched additional debug information. Warning! It severely affects performance. */
-        debugMode: boolean;
+    /** Holds information needed for user creation. */
+    export interface UserCreateRequest {
+        /** User's first name. */
+        firstName?: string | undefined;
+        /** User's last name. */
+        lastName?: string | undefined;
+        /** Email address of the user (doubles as username). */
+        emailAddress: string;
+        /** Preferred language, e.g. for correspondence. */
+        languageCode?: string | undefined;
+        /** IDs of user roles the user is assigned to. */
+        userRoleIds?: string[] | undefined;
+        /** User address. */
+        address?: UserAddress | undefined;
     }
     export interface BaseResultOfUserWithRoles {
         totalResults: number;
@@ -4148,53 +4298,84 @@ declare module "picturepark" {
         searchString?: string | undefined;
         isSearchStringRewritten: boolean;
     }
+    /** Holds results of the user search. */
     export interface UserSearchResult extends SearchBehaviourBaseResultOfUserWithRoles {
+        /** How long did the search take. */
         elapsedMilliseconds: number;
     }
+    /** User information retrieved via search */
     export interface UserWithRoles {
+        /** IDs of user roles user is assigned to */
         userRoleIds?: string[] | undefined;
+        /** User's Picturepark ID. */
         id?: string | undefined;
+        /** User's first name. */
         firstName?: string | undefined;
+        /** User's last name. */
         lastName?: string | undefined;
-        emailAddress?: string | undefined;
+        /** Email address of the user (doubles as username). */
+        emailAddress: string;
+        /** Authorization state the user is currently in. */
         authorizationState: AuthorizationState;
+        /** Life cycle state the user is currently in. */
         lifeCycle: LifeCycle;
+        /** The support user is a user created for Picturepark support personnel. */
         isSupportUser: boolean;
+        /** Read-only users can't be removed from the system, e.g. service user. */
         isReadOnly: boolean;
     }
-    export interface UserAggregationRequest {
-        searchString?: string | undefined;
-        /** An optional list of search behaviours. All the passed behaviours will be applied */
-        searchBehaviours?: SearchBehaviour[] | undefined;
-        sort?: SortInfo[] | undefined;
-        /** An optional search filter. Limits the content document result set. */
-        filter?: FilterBase | undefined;
-        aggregationFilters?: AggregationFilter[] | undefined;
-        aggregators?: AggregatorBase[] | undefined;
-    }
-    export interface UserLockRequest {
-        lock: boolean;
-    }
-    export interface UserReviewRequest {
-        reviewed: boolean;
-    }
-    export interface UserDeleteRequest {
-        ownerTokenTransferUserId?: string | undefined;
-    }
-    export interface UserRoleSearchRequest {
+    /** Represents user search request. */
+    export interface UserSearchRequest {
         /** Limits the search by using a query string filter. The Lucene query string syntax is supported. */
         searchString?: string | undefined;
-        /** An optional list of search behaviours. All the passed behaviours will be applied */
+        /** An optional list of search behaviors. All the passed behaviors will be applied. */
         searchBehaviours?: SearchBehaviour[] | undefined;
+        /** Fields and respective directions requested to sort the search results. */
         sort?: SortInfo[] | undefined;
         /** Defines the offset from the first result you want to fetch. Defaults to 0. */
         start: number;
         /** Limits the document count of the result set. Defaults to 30. */
         limit: number;
+        /** Filter applied to users. */
         filter?: FilterBase | undefined;
-        /** Enable debug mode to get as result of the Searched additional debug information. Warning! It severely affects performance. */
+        /** Return only users in certain life cycle state(s). */
+        lifeCycleFilter: LifeCycleFilter;
+        /** Return only users with certain user rights. */
+        userRightsFilter?: UserRight[] | undefined;
+        /** Enable debug mode to get as result of the Searched additional debug information. Warning! Severely affects performance. */
         debugMode: boolean;
-        searchLanguages?: string[] | undefined;
+        includeServiceUser: boolean;
+    }
+    /** Represents an aggregation request over users. */
+    export interface UserAggregationRequest {
+        /** Limits the search by using a query string filter. The Lucene query string syntax is supported. */
+        searchString?: string | undefined;
+        /** An optional list of search behaviors. All the passed behaviors will be applied. */
+        searchBehaviours?: SearchBehaviour[] | undefined;
+        /** Fields and respective directions requested to sort the search results. */
+        sort?: SortInfo[] | undefined;
+        /** An optional search filter. Limits the content document result set. */
+        filter?: FilterBase | undefined;
+        /** List of aggregation filters, which are added to the search query and return documents meeting the aggregation condition. */
+        aggregationFilters?: AggregationFilter[] | undefined;
+        /** List of aggregators used while evaluating the request. */
+        aggregators?: AggregatorBase[] | undefined;
+    }
+    export interface UserLockRequest {
+        /** Indicates the requested lock state of the user.
+    If _true_ was specified, the user will be _locked_. _False_ will unlock the previously _locked_ user. */
+        lock: boolean;
+    }
+    /** Holds additional information for user review. */
+    export interface UserReviewRequest {
+        /** Indicates the requested review state of the user.
+    If _true_ is specified, user will be transitioned into _reviewed_ state. _False_ will put the user back into _to be reviewed_ state. */
+        reviewed: boolean;
+    }
+    /** Details of the user deletion. */
+    export interface UserDeleteRequest {
+        /** User ID of user who will take over the ownership of the content currently owned by the deleted user. */
+        ownerTokenTransferUserId?: string | undefined;
     }
     export interface BaseResultOfUserRole {
         totalResults: number;
@@ -4206,30 +4387,60 @@ declare module "picturepark" {
         searchString?: string | undefined;
         isSearchStringRewritten: boolean;
     }
+    /** Holds results of the user role search. */
     export interface UserRoleSearchResult extends SearchBehaviourBaseResultOfUserRole {
+        /** How long did the search take. */
         elapsedMilliseconds: number;
     }
+    export interface UserRoleSearchRequest {
+        /** Limits the search by using a query string filter. The Lucene query string syntax is supported. */
+        searchString?: string | undefined;
+        /** An optional list of search behaviors. All the passed behaviors will be applied. */
+        searchBehaviours?: SearchBehaviour[] | undefined;
+        /** Fields and respective directions requested to sort the search results. */
+        sort?: SortInfo[] | undefined;
+        /** Defines the offset from the first result you want to fetch. Defaults to 0. */
+        start: number;
+        /** Limits the document count of the result set. Defaults to 30. */
+        limit: number;
+        /** Filter applied to user roles. */
+        filter?: FilterBase | undefined;
+        /** Enable debug mode to get as result of the Searched additional debug information. Warning! It severely affects performance. */
+        debugMode: boolean;
+        /** Which languages to search against when using the search string. */
+        searchLanguages?: string[] | undefined;
+        /** Defines if the user roles with system user role Administrator is returned. */
+        includeAdministratorSystemUserRole: boolean;
+    }
+    /** Holds information needed for user role creation. */
     export interface UserRoleCreateRequest {
-        names?: TranslatedStringDictionary | undefined;
-        userRights?: UserRight[] | undefined;
+        /** Language specific user role names. */
+        names: TranslatedStringDictionary;
+        /** All user rights for this user role. */
+        userRights: UserRight[];
     }
+    /** Holds information needed to create multiple user roles. */
     export interface UserRoleCreateManyRequest {
-        items?: UserRoleCreateRequest[] | undefined;
+        /** Multiple user creation requests. */
+        items: UserRoleCreateRequest[];
     }
+    /** Holds information about which user roles and how are requested to be updated. */
     export interface UserRoleUpdateManyRequest {
-        items?: UserRoleDetail[] | undefined;
+        /** New value for user roles with specified IDs. */
+        items: UserRoleDetail[];
     }
     export interface UserRoleDetail {
         /** The user role id. */
         id?: string | undefined;
-        trashed: boolean;
         /** Language specific user role names. */
         names?: TranslatedStringDictionary | undefined;
         /** All user rights for this user role. */
         userRights?: UserRight[] | undefined;
     }
+    /** Holds information about which user roles are requested to be deleted. */
     export interface UserRoleDeleteManyRequest {
-        ids?: string[] | undefined;
+        /** IDs of the user roles to delete. */
+        ids: string[];
     }
     export interface FileParameter {
         data: any;

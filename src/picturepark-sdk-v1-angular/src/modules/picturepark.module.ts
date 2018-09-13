@@ -11,7 +11,6 @@ import {
   UserService,
   ContentPermissionSetService,
   SchemaPermissionSetService,
-  PublicAccessService,
   ShareService,
   TransferService,
   ServiceProviderService,
@@ -122,18 +121,6 @@ export class PictureparkSchemaPermissionSetModule {
     HttpClientModule
   ],
   providers: [
-    PublicAccessService,
-    { provide: AuthService, useClass: AccessTokenAuthService }
-  ]
-})
-export class PictureparkPublicAccessModule {
-}
-
-@NgModule({
-  imports: [
-    HttpClientModule
-  ],
-  providers: [
     ShareService,
     { provide: AuthService, useClass: AccessTokenAuthService }
   ]
@@ -177,7 +164,6 @@ export class PictureparkServiceProviderModule {
     PictureparkUserModule,
     PictureparkContentPermissionSetModule,
     PictureparkSchemaPermissionSetModule,
-    PictureparkPublicAccessModule,
     PictureparkShareModule,
     PictureparkTransferModule,
     PictureparkServiceProviderModule
