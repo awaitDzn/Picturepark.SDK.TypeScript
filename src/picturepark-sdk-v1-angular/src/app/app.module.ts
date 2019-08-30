@@ -1,22 +1,23 @@
-import { NgModule, LOCALE_ID } from '@angular/core';
+import { HttpClientModule } from '@angular/common/http';
+import { LOCALE_ID, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HttpClientModule } from '@angular/common/http';
-
-// LIBRARIES
-import { PictureparkOidcAuthConfiguration, PictureparkOidcModule } from '@picturepark/sdk-v1-angular-oidc';
-import { PictureparkUiModule, LayerPanelsModule } from '@picturepark/sdk-v1-angular-ui';
 import { PICTUREPARK_CONFIGURATION } from '@picturepark/sdk-v1-angular';
+import { PictureparkOidcAuthConfiguration, PictureparkOidcModule } from '@picturepark/sdk-v1-angular-oidc';
+import { LayerPanelsModule, PictureparkUiModule } from '@picturepark/sdk-v1-angular-ui';
+import * as moment from 'moment';
 
-// MODULES
 import { AppRoutingModule } from './app-routing.module';
-
-// COMPONENTS
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
 
 export function LocaleIdFactory() {
-  return (<any>navigator).languages ? (<any>navigator).languages[0] : navigator.language;
+  const language = (<any>navigator).languages ? (<any>navigator).languages[0] : navigator.language;
+
+  //import(`moment/locale/${language}`).then(()=>{
+  moment.locale(language);
+  // }); 
+  return language;
 }
 
 // CLIENT CONFIG
@@ -53,4 +54,4 @@ export function PictureparkConfigurationFactory() {
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule {}
+export class AppModule { }
