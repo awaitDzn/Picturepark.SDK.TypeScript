@@ -29,9 +29,12 @@
         [itemModel]="itemModel" 
         [thumbnailSize]="activeThumbnailSize" 
         [isListView]="activeView.type === 'list'" 
-        (previewItemChange)="previewItem($event)"
-        (click)="itemClicked($event,i)" 
-        (dblclick)="previewItem(itemModel)">
+        (previewItemChange)="previewItem($event)" 
+        ppHammerActions
+        (singleClick)="itemClicked($event, i)" 
+        (doubleClick)="previewItem(itemModel)"
+        (singleTap)="previewItem(itemModel)"
+        (press)="itemClicked($event, i)">
       </pp-content-browser-item>
     </div>
   </div>
