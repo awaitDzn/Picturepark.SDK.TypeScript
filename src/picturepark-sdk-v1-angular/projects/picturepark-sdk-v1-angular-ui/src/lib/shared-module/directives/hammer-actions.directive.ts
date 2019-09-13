@@ -1,62 +1,52 @@
-import { Directive, EventEmitter, Output, ElementRef, OnInit } from '@angular/core';
-import * as Hammer from 'hammerjs';
+import { Directive, EventEmitter, Output, HostListener } from '@angular/core';
+
+//  @debounce() decorator
+export function debounce(milliseconds: number = 300): MethodDecorator {
+  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+    let timeout: any = null
+
+    const original = descriptor.value;
+
+    descriptor.value = function (...args) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => original.apply(this, args), milliseconds);
+    };
+
+    return descriptor;
+  };
+}
 
 @Directive({
   selector: '[ppHammerActions]'
 })
-export class HammerActionsDirective implements OnInit {
-  private singletapEventName = 'singletap';
-  private doubletapEventName = 'doubletap';
-  private pressEventName = 'press';
-  private manager: any;
+export class HammerActionsDirective {
 
-  @Output() singleTap = new EventEmitter();
-  @Output() singleClick = new EventEmitter();
-  @Output() doubleTap = new EventEmitter();
-  @Output() doubleClick = new EventEmitter();
-  @Output() press = new EventEmitter();
+  @Output() ppSingleTap = new EventEmitter();
+  @Output() ppSingleClick = new EventEmitter();
+  @Output() ppDoubleTap = new EventEmitter();
+  @Output() ppDoubleClick = new EventEmitter();
+  @Output() ppPress = new EventEmitter();
 
-  constructor(private el: ElementRef) { }
+  @HostListener('tap', ['$event'])
+  @debounce()
+  onTap(event) {
 
-  ngOnInit(): void {
-    // create a recognizer
-    this.manager = new Hammer.Manager(this.el.nativeElement);
+    if (event.tapCount === 1) {
+      // single
+      this.isTouchEvent(event) ? this.ppSingleTap.emit(event) : this.ppSingleClick.emit(event);
+    } else {
+      // double
+      this.isTouchEvent(event) ? this.ppDoubleTap.emit(event) : this.ppDoubleClick.emit(event);
+    }
+  }
 
-    // set up events
-    const singleTap = new Hammer.Tap({ event: this.singletapEventName });
-    const doubleTap = new Hammer.Tap({ event: this.doubletapEventName, taps: 2 });
-    const press = new Hammer.Press({ time: 500 });
-
-    // register events
-    this.manager.add([doubleTap, singleTap, press]);
-
-    doubleTap.recognizeWith(singleTap);
-    singleTap.requireFailure([doubleTap]);
-
-    // register callback
-    this.manager.on(`${this.singletapEventName} ${this.doubletapEventName} ${this.pressEventName}`, (event: PointerEvent) => {
-      this.handleEvent(event);
-    });
+  @HostListener('press', ['$event'])
+  onPress(event) {
+    // available only for touch event
+    if (this.isTouchEvent(event)) { this.ppPress.emit(event); }
   }
 
   isTouchEvent(event: PointerEvent) {
     return event.pointerType === 'touch';
-  }
-
-  handleEvent(event: PointerEvent) {
-    switch (event.type) {
-      case this.singletapEventName: {
-        this.isTouchEvent(event) ? this.singleTap.emit(event) : this.singleClick.emit(event);
-        break;
-      }
-      case this.doubletapEventName: {
-        this.isTouchEvent(event) ? this.doubleTap.emit(event) : this.doubleClick.emit(event);
-        break;
-      }
-      case this.pressEventName: {
-        if (this.isTouchEvent(event)) { this.press.emit(event); }
-        break;
-      }
-    }
   }
 }
