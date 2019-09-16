@@ -33,7 +33,7 @@
         ppHammerActions
         (ppSingleClick)="itemClicked($event, i)" 
         (ppDoubleClick)="previewItem(itemModel)"
-        (ppSingleTap)="previewItem(itemModel)"
+        (ppSingleTap)="selectedItems.length ? itemClicked($event, i) : previewItem(itemModel)"
         (ppPress)="itemClicked($event, i)">
       </pp-content-browser-item>
     </div>
